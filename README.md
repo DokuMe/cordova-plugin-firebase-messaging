@@ -139,6 +139,14 @@ Sets current badge number (if supported).
 cordova.plugins.firebase.messaging.setBadge(value);
 ```
 
+### registerActions(_actionId_, _actions_)
+Add an Action Category and actions
+```js
+cordova.plugins.firebase.messaging.registerActions("reply",[
+    { id: 'reply', title: 'Antworten', emptyText:'Nachricht eingeben', type:'input' }
+]); 
+````
+
 ## Notification channels on Android 8+
 Starting in Android 8.0 (API level 26), all notifications must be assigned to a channel or it will not appear. By categorizing notifications into channels, users can disable specific notification channels for your app (instead of disabling all your notifications), and users can control the visual and auditory options for each channel—all from the Android system settings.
 
@@ -188,14 +196,6 @@ Deletes the given notification channel.
 ```js
 cordova.plugins.firebase.messaging.deleteChannel(channelId);
 ```
-
-### registerActions(_actionId_, _actions_)
-Add an Action Category and actions
-```js
-cordova.plugins.firebase.messaging.registerActions("reply",[
-    { id: 'reply', title: 'Antworten', emptyText:'Nachricht eingeben', type:'input' }
-]); 
-````
 
 ## Android tips
 

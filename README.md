@@ -197,6 +197,14 @@ Deletes the given notification channel.
 cordova.plugins.firebase.messaging.deleteChannel(channelId);
 ```
 
+### registerActions(_actionId_, _actions_)
+Add an Action Category and actions
+```js
+cordova.plugins.firebase.messaging.registerActions("reply",[
+    { id: 'reply', title: 'Antworten', emptyText:'Nachricht eingeben', type:'input' }
+]); 
+````
+
 ## Android tips
 
 ### Set custom default notification icon

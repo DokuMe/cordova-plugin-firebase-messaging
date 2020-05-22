@@ -171,6 +171,93 @@
     self.tokenRefreshCallbackId = command.callbackId;
 }
 
+
+- (void)registerActions:(CDVInvokedUrlCommand *)command
+{
+    [self.commandDelegate runInBackground:^{
+        NSString* identifier = [command argumentAtIndex:0];
+        NSArray* actions     = [command argumentAtIndex:1];
+        UNNotificationCategory* category;
+        UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
+        
+        category = [self parse:actions withId:identifier];
+        [center getNotificationCategoriesWithCompletionHandler:^(NSSet<UNNotificationCategory *> *set) {
+            NSMutableSet* categories = [NSMutableSet setWithSet:set];
+
+            for (UNNotificationCategory* item in categories)
+            {
+                if ([category.identifier isEqualToString:item.identifier]) {
+                    [categories removeObject:item];
+                    break;
+                }
+            }
+
+            [categories addObject:category];
+            [center setNotificationCategories:categories];
+        }];
+
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:identifier];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    }];
+}
+
+- (UNNotificationCategory*) parse:(NSArray*)items withId:(NSString*)groupId
+{
+    NSMutableArray* actions = [[NSMutableArray alloc] init];
+    
+    for (NSDictionary* item in items) {
+        NSString* id    = item[@"id"];
+        NSString* title = item[@"title"];
+        NSString* type  = item[@"type"];
+        
+        UNNotificationActionOptions options = UNNotificationActionOptionNone;
+        UNNotificationAction* action;
+        
+        if ([item[@"launch"] boolValue]) {
+            options = UNNotificationActionOptionForeground;
+        }
+        
+        if ([item[@"ui"] isEqualToString:@"decline"]) {
+            options = options | UNNotificationActionOptionDestructive;
+        }
+        
+        if ([item[@"needsAuth"] boolValue]) {
+            options = options | UNNotificationActionOptionAuthenticationRequired;
+        }
+        
+        if ([type isEqualToString:@"input"]) {
+            NSString* submitTitle = item[@"submitTitle"];
+            NSString* placeholder = item[@"emptyText"];
+            
+            if (!submitTitle.length) {
+                submitTitle = @"Submit";
+            }
+            
+            action = [UNTextInputNotificationAction actionWithIdentifier:id
+                                                                   title:title
+                                                                 options:options
+                                                    textInputButtonTitle:submitTitle
+                                                    textInputPlaceholder:placeholder];
+        } else
+            if (!type.length || [type isEqualToString:@"button"]) {
+                action = [UNNotificationAction actionWithIdentifier:id
+                                                              title:title
+                                                            options:options];
+            } else {
+                NSLog(@"Unknown action type: %@", type);
+            }
+        
+        if (action) {
+            [actions addObject:action];
+        }
+    }
+    
+    return [UNNotificationCategory categoryWithIdentifier:groupId
+                                                  actions:actions
+                                        intentIdentifiers:@[]
+                                                  options:UNNotificationCategoryOptionCustomDismissAction];
+}
+
 - (void)sendNotification:(NSDictionary *)userInfo {
     if (self.notificationCallbackId) {
         CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:userInfo];

@@ -77,5 +77,10 @@ module.exports = {
         return new Promise(function(resolve, reject) {
             exec(resolve, reject, PLUGIN_NAME, "deleteChannel", [channelId]);
         });
-    }
+    },
+    registerActions: function(id, actions) {
+        return new Promise(function(resolve, reject) {
+            exec(resolve, reject, PLUGIN_NAME, "registerActions",  [id, actions]);
+        });
+    };
 };

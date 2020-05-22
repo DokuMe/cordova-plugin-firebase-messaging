@@ -18,6 +18,9 @@
 - (void)sendNotification:(NSDictionary*)userInfo;
 - (void)sendBackgroundNotification:(NSDictionary*)userInfo;
 
+- (void)registerActions:(CDVInvokedUrlCommand*)command;
+- (UNNotificationCategory*) parse:(NSArray*)list withId:(NSString*)groupId;
+
 @property (nonatomic, copy) NSString* notificationCallbackId;
 @property (nonatomic, copy) NSString* backgroundNotificationCallbackId;
 @property (nonatomic, copy) NSString* tokenRefreshCallbackId;

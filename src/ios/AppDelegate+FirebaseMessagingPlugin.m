@@ -96,7 +96,15 @@ fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
 didReceiveNotificationResponse:(UNNotificationResponse *)response
          withCompletionHandler:(void (^)(void))completionHandler {
     NSDictionary *userInfo = response.notification.request.content.userInfo;
-
+    NSMutableDictionary *data = [NSMutableDictionary dictionaryWithDictionary:userInfo];
+    
+    [data setObject:response.actionIdentifier forKey:@"ActionIdentifier"];
+    
+    if ([response isKindOfClass:UNTextInputNotificationResponse.class]) {
+       [data setObject:((UNTextInputNotificationResponse*) response).userText
+                forKey:@"ActionIdentifierInput"];
+    }
+    
     [self postNotification:userInfo background:TRUE];
 
     completionHandler();
